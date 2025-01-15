@@ -35,7 +35,7 @@ namespace BL
             {
                 throw new Exception("no VALID baby");
             }
-            _dataContext.Babies.Add(baby);
+            _dataContext.Babies.Add( baby);
             _dataContext.SaveChanges();
         }
         public void PutById(int id, Baby baby)

@@ -1,9 +1,11 @@
 ﻿using System.Net.Cache;
+using System.Text.Json.Serialization;
 
 namespace DL.entities
 {
     public class Baby
     {
+        //[JsonIgnore]
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime DateOfBirth { get; set; }
