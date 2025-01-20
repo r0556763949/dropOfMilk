@@ -5,7 +5,7 @@
 namespace DL.Migrations
 {
     /// <inheritdoc />
-    public partial class onetomany2 : Migration
+    public partial class AddForeignKeysToAppointment : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

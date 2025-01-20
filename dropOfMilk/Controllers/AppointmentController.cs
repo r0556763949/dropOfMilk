@@ -23,7 +23,7 @@ namespace dropOfMilk.Controllers
             return _appointmentService.GetAppointmentById(id);
         }
         [HttpGet]
-        public List<Appointment> GetAppointmentList()
+        public IEnumerable<Appointment> GetAppointmentList()
         {
             return _appointmentService.GetAllAppointment();
         }

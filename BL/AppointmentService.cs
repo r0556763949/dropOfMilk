@@ -2,6 +2,7 @@
 using DL;
 using DL.entities;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace BL
 {
@@ -13,85 +14,85 @@ namespace BL
         {
             this._dataContext = dataContext;
         }
+        private (Nurse, Baby) GetExistingNurseAndBaby(int nurseId, int babyId)
+        {
+            var existingNurse = _dataContext.Nurses.Find(nurseId);
+            if (existingNurse == null)
+            {
+                throw new KeyNotFoundException("Nurse does not exist");
+            }
 
-        public List<Appointment> GetAllAppointment()
+            var existingBaby = _dataContext.Babies.Find(babyId);
+            if (existingBaby == null)
+            {
+                throw new KeyNotFoundException("Baby does not exist");
+            }
+
+            return (existingNurse, existingBaby); 
+        }
+        public IEnumerable<Appointment> GetAllAppointment()
         {
             if (_dataContext.Appointments.Count() == 0)
             {
                 throw new Exception("no Appointments");
             }
-            return _dataContext.Appointments.Include(u => u.nurse).Include(u => u.baby).ToList();
+            return _dataContext.Appointments.Include(u => u.Nurse).Include(u => u.Baby);
         }
         public Appointment GetAppointmentById(int id)
         {
-            if (_dataContext.Appointments.ToList().Find(x => x.Id == id) == null)
+            var appointment = _dataContext.Appointments.Include(u => u.Nurse).Include(u => u.Baby).FirstOrDefault(x => x.Id == id);
+            if (appointment == null)
             {
                 throw new Exception("no found id");
             }
-            return _dataContext.Appointments.Where(x => x.Id == id).Include(u => u.nurse).Include(u => u.baby).FirstOrDefault();
+            return appointment;
         }
         public void PostAppointment(Appointment appointment)
         {
-            if (appointment == null || appointment is not Appointment)
+            if (appointment == null)
             {
                 throw new Exception("no VALID appointment");
             }
-            appointment.Id = 0;
-            var existingBaby = _dataContext.Babies.Find(appointment.babyId);
-            if (existingBaby == null) {
-                throw new Exception("no exists Baby");
-            }
-            // חפש את האחות הקיימת
-            var existingNurse = _dataContext.Nurses.Find(appointment.nurseId);
-            if (existingNurse == null) {
-                throw new Exception("no exists nurse");
-            }
+
+            var (existingNurse, existingBaby) = GetExistingNurseAndBaby(appointment.NurseId, appointment.BabyId);
 
             // השתמש באובייקטים הקיימים
-            appointment.baby = existingBaby;
-            appointment.nurse = existingNurse;
+            appointment.Baby = existingBaby;
+            appointment.Nurse = existingNurse;
 
             _dataContext.Appointments.Add(appointment);
             _dataContext.SaveChanges();
         }
         public void PutAppointment(int id, Appointment appointment)
         {
+            var app = _dataContext.Appointments.FirstOrDefault(x => x.Id == id);
 
-            if (_dataContext.Appointments.Count() == 0)
-            {
-                throw new Exception("no Appointments");
-            }
-            if (appointment == null || appointment is not Appointment)
+            if (appointment == null || app==null)
             {
                 throw new Exception("no VALID appointment");
             }
-            _dataContext.Appointments.Remove(_dataContext.Appointments.ToList().Find(x => x.Id == id));
-            var existingBaby = _dataContext.Babies.Find(appointment.babyId);
-            if (existingBaby == null)
-            {
-                throw new Exception("no exists Baby");
-            }
-            // חפש את האחות הקיימת
-            var existingNurse = _dataContext.Nurses.Find(appointment.nurseId);
-            if (existingNurse == null)
-            {
-                throw new Exception("no exists nurse");
-            }
+            var (existingNurse, existingBaby) = GetExistingNurseAndBaby(appointment.NurseId, appointment.BabyId);
 
             // השתמש באובייקטים הקיימים
-            appointment.baby = existingBaby;
-            appointment.nurse = existingNurse;
-            _dataContext.Appointments.Add(appointment);
+            app.Baby = existingBaby;
+            app.Nurse = existingNurse;
+            app.Date = appointment.Date;
             _dataContext.SaveChanges();
         }
         public void DeleteAppointment(int id)
         {
-            if (_dataContext.Appointments.ToList().Find(x => x.Id == id) == null)
+            var app = _dataContext.Appointments.FirstOrDefault(x => x.Id == id);
+            if (app == null)
             {
                 throw new Exception("no found id");
             }
-            _dataContext.Appointments.Remove(_dataContext.Appointments.ToList().Find(x => x.Id == id));
+            _dataContext.Appointments.Remove(app);
             _dataContext.SaveChanges();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 }

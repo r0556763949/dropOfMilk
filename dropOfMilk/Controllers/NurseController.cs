@@ -20,7 +20,7 @@ namespace dropOfMilk.Controllers
 
         // GET api/<NourseController>
         [HttpGet]
-        public List<Nurse> Get()
+        public  IEnumerable<Nurse> Get()
         {
             return _nurseService.GetAllNurses();
         }

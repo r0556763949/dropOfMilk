@@ -18,7 +18,7 @@ namespace dropOfMilk.Controllers
         }
 
         [HttpGet]
-        public List<Baby> Get()
+        public IEnumerable<Baby> Get()
         {
             return _babyService.GetAllBaby();
         }

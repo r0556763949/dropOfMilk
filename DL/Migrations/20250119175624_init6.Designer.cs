@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DL.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241216232128_one-to-many")]
-    partial class onetomany
+    [Migration("20250119175624_init6")]
+    partial class init6
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,20 +33,20 @@ namespace DL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("BabyId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("babyId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("nurseId")
+                    b.Property<int>("NurseId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("babyId");
+                    b.HasIndex("BabyId");
 
-                    b.HasIndex("nurseId");
+                    b.HasIndex("NurseId");
 
                     b.ToTable("Appointments");
                 });
@@ -58,9 +58,6 @@ namespace DL.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CountOfAppointments")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
@@ -97,21 +94,26 @@ namespace DL.Migrations
 
             modelBuilder.Entity("DL.entities.Appointment", b =>
                 {
-                    b.HasOne("DL.entities.Baby", "baby")
-                        .WithMany()
-                        .HasForeignKey("babyId")
+                    b.HasOne("DL.entities.Baby", "Baby")
+                        .WithMany("appointments")
+                        .HasForeignKey("BabyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DL.entities.Nurse", "nurse")
+                    b.HasOne("DL.entities.Nurse", "Nurse")
                         .WithMany()
-                        .HasForeignKey("nurseId")
+                        .HasForeignKey("NurseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("baby");
+                    b.Navigation("Baby");
 
-                    b.Navigation("nurse");
+                    b.Navigation("Nurse");
+                });
+
+            modelBuilder.Entity("DL.entities.Baby", b =>
+                {
+                    b.Navigation("appointments");
                 });
 #pragma warning restore 612, 618
         }

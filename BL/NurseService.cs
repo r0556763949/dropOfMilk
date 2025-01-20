@@ -1,10 +1,11 @@
 ﻿using BL.InterfaceService;
 using DL;
 using DL.entities;
+using System.Collections;
 
 namespace BL
 {
-    public class NurseService:INurseService
+    public class NurseService : INurseService
     {
         public readonly IDataContext _dataContext;
 
@@ -13,25 +14,28 @@ namespace BL
             _dataContext = dataContext;
         }
 
-        public List<Nurse> GetAllNurses()
+        public IEnumerable<Nurse> GetAllNurses()
         {
             if (_dataContext.Nurses.Count() == 0)
             {
                 throw new Exception("no Nurses");
             }
-            return _dataContext.Nurses.ToList();
+            return _dataContext.Nurses;
         }
         public Nurse GetNurseById(int id)
         {
-            if (_dataContext.Nurses.ToList().Find(x => x.Id == id) == null)
+            var nurse = _dataContext.Nurses.FirstOrDefault(x => x.Id == id);
+
+            if (nurse == null)
             {
                 throw new Exception("no found id");
             }
-            return _dataContext.Nurses.ToList().Find(n => n.Id == id);
+
+            return nurse;
         }
         public void PostNurse(Nurse nurse)
         {
-            if (nurse == null || nurse is not Nurse)
+            if (nurse == null)
             {
                 throw new Exception("no VALID nurse");
             }
@@ -40,27 +44,34 @@ namespace BL
         }
         public void PutNurse(int id, Nurse nurse)
         {
-            if (_dataContext.Nurses.ToList().Find(x => x.Id == id) == null)
+            var nurseById = _dataContext.Nurses.FirstOrDefault(x => x.Id == id);
+            if (nurseById  == null)
             {
                 throw new Exception("no found id");
             }
-            if (nurse == null || nurse is not Nurse)
+            if (nurse  == null)
             {
                 throw new Exception("no VALID nurse");
             }
-            _dataContext.Nurses.ToList().Remove(_dataContext.Nurses.ToList().Find(x => x.Id == id));
-            _dataContext.Nurses.Add(nurse);
+            nurseById.Name = nurse.Name;
+            nurseById.DaysOfWork = nurse.DaysOfWork;
             _dataContext.SaveChanges();
         }
         public void DeleteNurse(int id)
         {
+            var nurseById = _dataContext.Nurses.FirstOrDefault(x => x.Id == id);
 
-            if (_dataContext.Nurses.ToList().Find(x => x.Id == id) == null)
+            if (nurseById == null)
             {
                 throw new Exception("no found id");
             }
-            _dataContext.Nurses.Remove(_dataContext.Nurses.ToList().Find(x => x.Id == id));
+            _dataContext.Nurses.Remove(nurseById);
             _dataContext.SaveChanges();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 }

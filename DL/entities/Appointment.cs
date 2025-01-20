@@ -6,23 +6,23 @@ namespace DL.entities
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
-        public Baby baby { get; set; }
-        public int babyId { get; set; }
-        public Nurse nurse { get; set; }
-        public int nurseId { get; set; }
-        static int Length = 15;
+        public int BabyId { get; set; }
+        public Baby Baby { get; set; }
+        public int NurseId { get; set; }
+
+        public Nurse Nurse { get; set; }
 
         public Appointment()
         {
         }
 
-        public Appointment(int id, DateTime date, Baby baby, Nurse nurse)
-        {
-            Id = id;
-            Date = date;
-            this.baby = baby;
-            this.nurse = nurse;
-        }
+        //public Appointment(int id, DateTime date, Baby baby, Nurse nurse)
+        //{
+        //    Id = id;
+        //    Date = date;
+        //    this.baby = baby;
+        //    this.nurse = nurse;
+        //}
 
     }
 }

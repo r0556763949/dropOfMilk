@@ -1,10 +1,11 @@
 ﻿using BL.InterfaceService;
 using DL;
 using DL.entities;
+using System.Collections;
 
 namespace BL
 {
-    public class BabyService:IBabyService
+    public class BabyService : IBabyService
     {
         public readonly IDataContext _dataContext;
 
@@ -13,53 +14,69 @@ namespace BL
             _dataContext = dataContext;
         }
 
-        public List<Baby> GetAllBaby()
+        public IEnumerable<Baby> GetAllBaby()
         {
-            if(_dataContext.Babies.Count()==0)
+            var babies = _dataContext.Babies.AsEnumerable();
+
+            if (!babies.Any())
             {
-                throw new Exception("no babies");
+                throw new Exception("No babies found.");
             }
-            return _dataContext.Babies.ToList();
-        } 
-        public Baby GetBabyById(int id) 
-        {
-            if(_dataContext.Babies.ToList().Find(x => x.Id == id)==null)
-            {
-                throw new Exception("no found id");
-            }
-            return _dataContext.Babies.ToList().Find(x => x.Id == id);
+
+            return babies;
         }
+        public Baby GetBabyById(int id)
+        {
+            var baby = _dataContext.Babies.FirstOrDefault(x => x.Id == id);
+            if (baby == null)
+            {
+                throw new KeyNotFoundException($"Baby with ID {id} not found.");
+            }
+            return baby;
+        }
+
         public void PostBaby(Baby baby)
         {
-            if (baby == null || baby is not Baby)
+            if (baby == null)
             {
                 throw new Exception("no VALID baby");
             }
-            _dataContext.Babies.Add( baby);
+            _dataContext.Babies.Add(baby);
             _dataContext.SaveChanges();
         }
         public void PutById(int id, Baby baby)
         {
-            if (_dataContext.Babies.ToList().Find(x => x.Id == id) == null)
+            if (baby == null)
             {
-                throw new Exception("no found id");
+                throw new ArgumentNullException(nameof(baby), "Baby cannot be null.");
             }
-            if (baby == null || baby is not Baby)
+
+            var existingBaby = _dataContext.Babies.FirstOrDefault(x => x.Id == id);
+            if (existingBaby == null)
             {
-                throw new Exception("no VALID baby");
+                throw new KeyNotFoundException($"Baby with ID {id} not found.");
             }
-            _dataContext.Babies.Remove(_dataContext.Babies.ToList().Find(x => x.Id == id));
-            _dataContext.Babies.Add(baby);
+
+            existingBaby.Name = baby.Name;
+            existingBaby.DateOfBirth = baby.DateOfBirth;
+
             _dataContext.SaveChanges();
         }
         public void DeleteById(int id)
         {
-            if (_dataContext.Babies.ToList().Find(x => x.Id == id) == null)
+            var baby = _dataContext.Babies.FirstOrDefault(x => x.Id == id);
+            if (baby == null)
             {
-                throw new Exception("no found id");
+                throw new KeyNotFoundException($"Baby with ID {id} not found.");
             }
-            _dataContext.Babies.Remove(_dataContext.Babies.ToList().Find(x => x.Id == id));
+
+            _dataContext.Babies.Remove(baby);
             _dataContext.SaveChanges();
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 }
